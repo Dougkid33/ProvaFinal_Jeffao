@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "161254499499",
+    "project_id": "charutaria-do-jeff",
+    "storage_bucket": "charutaria-do-jeff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:161254499499:android:8b3fed7ac78de9863983ee",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3wcwR5Y6gJEagyvPFwWMabmfxIeRo-3s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
