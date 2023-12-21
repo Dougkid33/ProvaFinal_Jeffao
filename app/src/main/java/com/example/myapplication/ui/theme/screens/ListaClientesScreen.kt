@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.theme.screens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,8 +18,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.Navigation.AppDestination
 import com.example.myapplication.model.Cliente
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
+import androidx.compose.runtime.Composable
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+
 
 @Composable
 fun ListaClientesScreen(navController: NavHostController?, isPreview:Boolean = false) {
@@ -50,26 +57,37 @@ fun ListaClientesScreen(navController: NavHostController?, isPreview:Boolean = f
                 ClienteCard(cliente, onEdit = { clienteEditado ->
                     navController?.navigate(AppDestination.CadastroEdicaoCliente.createRoute(clienteEditado.cpf))
                 }, onDelete = { cpf ->
-                    db?.collection("clientes")?.document(cpf)?.delete()?.addOnSuccessListener {
-                        // Recarregar a lista após a exclusão
-                        db.collection("clientes").get().addOnSuccessListener { querySnapshot ->
-                            clientes = querySnapshot.documents.map { document ->
-                                Cliente(
-                                    cpf = document.getString("cpf") ?: "",
-                                    nome = document.getString("nome") ?: "",
-                                    email = document.getString("email") ?: "",
-                                    instagram = document.getString("instagram") ?: ""
-                                )
+                    val db = Firebase.firestore
+                    val document = db.collection("clientes").document(cpf)
+
+                    document.get().addOnSuccessListener { querySnapshot ->
+                        document.delete().addOnSuccessListener {
+                            Log.d("Firestore", "DocumentSnapshot successfully deleted!")
+                            // Recarregar a lista após a exclusão
+                            db.collection("clientes").get().addOnSuccessListener { querySnapshot ->
+                                clientes = querySnapshot.documents.map { document ->
+                                    Cliente(
+                                        cpf = document.getString("cpf") ?: "",
+                                        nome = document.getString("nome") ?: "",
+                                        email = document.getString("email") ?: "",
+                                        instagram = document.getString("instagram") ?: ""
+                                    )
+                                }
+                                isLoading = false
                             }
-                            isLoading = false
-                        }
-                    }
-                        ?.addOnFailureListener { e ->
-                            // Log the error
+                        }.addOnFailureListener { e ->
                             Log.w("Firestore", "Error deleting document", e)
+                            if (e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.NOT_FOUND) {
+                                // Show a Toast message
+                                //Toast.makeText(context, "Cliente com o CPF ${cpf} não existe.", Toast.LENGTH_SHORT).show()
+                            }
                         }
-                })
-                Button(
+                    }.addOnFailureListener { e ->
+                        Log.w("Firestore", "Error getting document", e)
+                    }
+                }
+                )
+                        Button(
                     onClick = { navController?.navigate(AppDestination.TelaInicial.route) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
