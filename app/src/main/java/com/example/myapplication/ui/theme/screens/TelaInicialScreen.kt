@@ -54,7 +54,8 @@ fun TelaInicialScreen(navController: NavHostController) {
         ) {
             Text("Lista de Clientes")
         }
-        Button(onClick = { navController.navigate(AppDestination.ListaCaixasCharuto.route) },
+        Button(
+            onClick = { navController.navigate(AppDestination.ListaCaixasCharuto.route) },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Lista de Caixas de Charuto")

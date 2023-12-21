@@ -1,7 +1,7 @@
 package com.example.myapplication.model
 
 open class CaixaDeCharutos(
-    val codigo: Int,
+    var codigo: Int,
     val modelo: String,
     val fabricante: String,
     private val qtdeNicotina: Float,

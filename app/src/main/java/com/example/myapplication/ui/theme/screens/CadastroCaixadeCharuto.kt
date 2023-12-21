@@ -1,11 +1,14 @@
 package com.example.myapplication.ui.theme.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,23 +24,17 @@ import com.example.myapplication.model.Cliente
 import kotlin.random.Random
 
 @Composable
-fun CadastroCharutoScreen(navController: NavHostController?, isPreview:Boolean = false) {
+fun CadastroCharutoScreen(navController: NavHostController?, isPreview: Boolean = false) {
     val db = if (!isPreview) FirebaseFirestore.getInstance() else null
 
-    //var codigo by remember { mutableStateOf("") }
     var modelo by remember { mutableStateOf("") }
     var fabricante by remember { mutableStateOf("") }
     var qtdeNicotina by remember { mutableStateOf("") }
     var preco by remember { mutableStateOf("") }
-    //var cpfCliente by remember { mutableStateOf("") }
+    var cpfCliente by remember { mutableStateOf("") }
 
     // Geração de código incremental aleatório
-    val codigo= remember { mutableStateOf(0) }
-    codigo.value = Random.nextInt(1000, 9999) // Gera um número aleatório entre 1000 e 9999
-
-    // Recuperação do CPF do cliente
-    var selectedCliente by remember { mutableStateOf<Cliente?>(null) }
-
+    val codigo = remember { mutableStateOf(Random.nextInt(1000, 9999)) } // Gera um número aleatório entre 1000 e 9999
 
     Column(
         modifier = Modifier
@@ -47,53 +44,37 @@ fun CadastroCharutoScreen(navController: NavHostController?, isPreview:Boolean =
     ) {
         Text("Cadastro de Caixa de Charutos", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(16.dp))
-        //OutlinedTextField(value = codigo.value.toString(), onValueChange = { codigo.value = it.toInt() }, label = { Text("Código") })
+
+        Text("Código: ${codigo.value}", style = MaterialTheme.typography.bodyMedium) // Exibe o código como uma label
+
         OutlinedTextField(value = modelo, onValueChange = { modelo = it }, label = { Text("Modelo") })
         OutlinedTextField(value = fabricante, onValueChange = { fabricante = it }, label = { Text("Fabricante") })
         OutlinedTextField(value = qtdeNicotina, onValueChange = { qtdeNicotina = it }, label = { Text("Qtde Nicotina") })
         OutlinedTextField(value = preco, onValueChange = { preco = it }, label = { Text("Preço") })
-           Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
-            value = selectedCliente?.nome ?: "",
-            onValueChange = {},
-            label = { Text("Cliente") },
-            readOnly = true,
-            trailingIcon = {
-                DropdownMenu(
-                    expanded = selectedCliente != null,
-                    onDismissRequest = { selectedCliente = null }
-                ) {
-                    db?.collection("clientes")
-                        ?.get()
-                        ?.addOnSuccessListener { documents ->
-                            documents.mapNotNull { it.toObject(Cliente::class.java) }.forEach { cliente ->
-                                DropdownMenuItem(onClick = { selectedCliente = cliente }) {
-                                    (cliente.nome)
-                                }
-                            }
-                        }
-                        ?.addOnFailureListener { exception ->
-                            // Tratamento de erro
-                        }
-                }
-            }
-        )
+        OutlinedTextField(value = cpfCliente, onValueChange = { cpfCliente = it }, label = { Text("CPF Cliente") }) // Campo CPF como um campo editável
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-
                 val charuto = CaixaDeCharutos(
-                    codigo.value,
-                    modelo,
-                    fabricante,
-                    qtdeNicotina.toFloat(),
-                    preco.toDouble(),
-                    selectedCliente?.cpf ?: ""
+                    codigo = codigo.value,
+                    modelo = modelo,
+                    fabricante = fabricante,
+                    qtdeNicotina = qtdeNicotina.toFloat(),
+                    preco = preco.toDouble(),
+                    cpfCliente = cpfCliente
                 )
                 db?.collection("caixasDeCharutos")?.add(charuto)
                     ?.addOnSuccessListener {
-                        // Tratamento de sucesso
-                    }
+                        // Limpa os campos
+                        modelo = ""
+                        fabricante = ""
+                        qtdeNicotina = ""
+                        preco = ""
+                        cpfCliente = ""
+                        SnackbarHostState()
+                        Toast.makeText(null, "Caixa de Charutos cadastrada com sucesso!", Toast.LENGTH_SHORT).show()       }
                     ?.addOnFailureListener {
                         // Tratamento de erro
                     }
@@ -101,12 +82,16 @@ fun CadastroCharutoScreen(navController: NavHostController?, isPreview:Boolean =
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Cadastrar")
+
+
+        }
+        Button(
+            onClick = { navController?.popBackStack() },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Retornar para a Tela Inicial")
         }
     }
-}
-
-fun DropdownMenuItem(onClick: () -> Unit, interactionSource: () -> Unit) {
-
 }
 
 @Preview(showBackground = true)

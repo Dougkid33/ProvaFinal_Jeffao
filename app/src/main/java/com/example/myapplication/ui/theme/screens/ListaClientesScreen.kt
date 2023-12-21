@@ -87,13 +87,15 @@ fun ListaClientesScreen(navController: NavHostController?, isPreview:Boolean = f
                     }
                 }
                 )
-                        Button(
-                    onClick = { navController?.navigate(AppDestination.TelaInicial.route) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Retornar para a Tela Inicial")
-                }
+
             }
+
+        }
+        Button(
+            onClick = { navController?.navigate(AppDestination.TelaInicial.route) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Retornar para a Tela Inicial")
         }
     }
 }

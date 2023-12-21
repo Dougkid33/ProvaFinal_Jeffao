@@ -37,7 +37,7 @@ fun AppNavigation() {
         composable("cadastroCliente") { CadastroClienteScreen(navController) }
         composable("listaClientes") { ListaClientesScreen(navController) }
         composable("cadastroCaixaCharuto") { CadastroCharutoScreen(navController) }
-        composable("listaCaixasCharuto") { ListaCharutosScreen(navController) }
+        composable("listaCaixasCharuto") { ListaCharutosScreen() }
         composable(AppDestination.CadastroEdicaoCliente.route) { backStackEntry ->
             val cpf = backStackEntry.arguments?.getString("cpf") ?: ""
             CadastroEdicaoClienteScreen(navController, cpf)
